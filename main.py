@@ -2,8 +2,9 @@ import streamlit as st
 import pandas as pd
 import snowflake.connector as sf
 
-st.title("Snowflake data to Streamlit app")
-st.header('This is used to check Snowflake to Streamlit data flow')
+st.title("Connecting Snowflake Data to Streamlit Web App")
+st.header('The Product Data')
+st.write('The discount price was given in the "discount_price" column, and they are marked with color background to provide easy data visualization insight.')
 
 sidebar = st.sidebar
 
@@ -16,13 +17,11 @@ def connect_to_snowflake(acct, u, pd, rl, wh, db):
     return cs
 
 # Function to apply highlighting
-def highlight_cells(value):
-    if value < 5:
-        return 'background-color: red'
-    elif 5 <= value < 10:
-        return 'background-color: yellow'
+def highlight_discount_price(value):
+    if value == 0:
+        return 'background-color: #8FBC8F'  # Green
     else:
-        return 'background-color: green'
+        return 'background-color: #FF6347'  # Red
 
 # Function to fetch data from Snowflake
 def get_data():
@@ -45,14 +44,13 @@ if 'is_ready' not in st.session_state:
     st.session_state['is_ready'] = False
 
 if st.session_state['is_ready'] == True:
-    st.write('Connected')
     data = get_data()
 
     # Convert fetched data to a Pandas DataFrame
     df = pd.DataFrame(data, columns=['ID', 'NAME', 'CATEGORY', 'QUANTITY', 'Amount', 'Discount_price', 'Purchased_at'])
 
-    # Apply highlighting to the 'Amount' and 'Discount_price' columns based on the specified conditions
-    df_styled = df.style.applymap(highlight_cells, subset=['Amount', 'Discount_price'])
+    # Apply highlighting to the 'Discount_price' column based on the value
+    df_styled = df.style.applymap(highlight_discount_price, subset=['Discount_price'])
 
     # Display the styled DataFrame using st.write
     st.write(df_styled)
